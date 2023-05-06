@@ -1,0 +1,65 @@
+#include <kipr/wombat.h>
+#define rightWheelBias .93
+
+//Moves the robot Straight, incorporates motor motor msleep method and parameters are the speed of the motors and the duration of the motors. There is a bias added due to the imbalance between the right and left wheel motors. We corrected this by adding a bias on the right wheel motor, as it is slightly too powerful compared to the left.
+void moveStraight(int speed, float time){
+    motor(1, -speed*rightWheelBias);
+    motor(3, speed);
+    msleep(time*1000);
+}
+
+//Turn
+void turn(int rightSpeed, int leftSpeed, float time){
+    motor(1, -rightSpeed*rightWheelBias);
+    motor(3, leftSpeed);
+    msleep(time*1000);
+}
+
+//Lift Arm. A lower value is a higher position. Essentially moves the arm by calling to the arm servo, and this is done easily due to the creation of a function. 
+void liftArmTo(int pos){
+    enable_servo(3);
+    set_servo_position(3, pos);
+}
+
+//Rotate Arm. 
+void rotateArmTo(int pos){
+    enable_servo(2);
+    set_servo_position(2, pos);
+}
+
+//Claw
+void claw(int pos){
+    enable_servo(1);
+    set_servo_position(1, pos);
+}
+
+//Extract Noodle
+void extract(){
+	rotateArmTo(2047);
+    claw(2047);
+    liftArmTo(1400);
+    moveStraight(25, 2);
+    claw(1024);
+    turn(25, -25, 5);
+}
+
+// Drop Off Noodle
+void drop(){
+	rotateArmTo(800);
+    liftArmTo(400);
+    moveStraight(50, 4.5);
+    liftArmTo(1400);
+    moveStraight(50, 1);
+    liftArmTo(2047);
+    claw(2047);
+    moveStraight(-50, 1);
+}
+
+int main()
+{
+    extract();
+    drop();
+    return 0;
+}
+
+
